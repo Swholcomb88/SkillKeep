@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#221c13">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>SkillKeep — F2P One-Level Rotation</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root{
+  --bg:#16110a; --stone:#2e2619; --stone2:#3a3122; --edge-l:#5c5140; --edge-d:#0d0a06;
+  --gold:#ff981f; --gold-dim:#c77f28; --parch:#e8dcc0; --text:#d8cdb4; --mut:#9c8f74;
+  --green:#3fd13f; --red:#e04a3a; --blue:#5aa7d6;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{font-size:16px}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  min-height:100dvh;padding-bottom:74px;
+  background-image:radial-gradient(ellipse at 50% -10%, #241c10 0%, var(--bg) 60%)}
+.serif{font-family:Georgia,"Times New Roman",serif}
+header{padding:14px 16px 10px;text-align:center;border-bottom:2px solid var(--edge-d);
+  box-shadow:0 2px 0 var(--edge-l) inset}
+header h1{font-family:Georgia,serif;color:var(--gold);font-size:1.35rem;letter-spacing:.12em;
+  text-shadow:0 2px 0 #000,0 0 18px rgba(255,152,31,.25)}
+header .sub{color:var(--mut);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;margin-top:2px}
+main{padding:12px 12px 20px;max-width:640px;margin:0 auto}
+/* carved stone card */
+.card{background:var(--stone);border:2px solid var(--edge-d);border-radius:6px;
+  box-shadow:inset 0 0 0 2px var(--edge-l),0 3px 8px rgba(0,0,0,.5);padding:12px;margin-bottom:12px}
+.card h2{font-family:Georgia,serif;color:var(--gold);font-size:.95rem;letter-spacing:.08em;margin-bottom:8px}
+/* the Step Stone — signature element */
+.stepstone{position:relative;text-align:center;padding:18px 14px 16px;background:
+  linear-gradient(180deg,#3d3320,#2a2214);border:2px solid var(--edge-d);border-radius:8px;
+  box-shadow:inset 0 0 0 2px var(--edge-l),inset 0 0 40px rgba(0,0,0,.55),0 4px 10px rgba(0,0,0,.6);
+  margin-bottom:12px}
+.stepstone .stepno{color:var(--mut);font-size:.7rem;letter-spacing:.3em;text-transform:uppercase}
+.stepstone .skillname{font-family:Georgia,serif;font-size:1.7rem;color:var(--parch);
+  text-shadow:0 2px 0 #000;margin:4px 0 2px}
+.stepstone .lvl{color:var(--gold);font-size:1.05rem;font-weight:700;letter-spacing:.06em}
+.stepstone .method{color:var(--text);font-size:.85rem;margin-top:8px;line-height:1.45}
+.stepstone .sigil{width:52px;height:52px;border-radius:50%;margin:0 auto 6px;border:2px solid var(--edge-d);
+  box-shadow:inset 0 0 0 2px var(--edge-l),inset 0 -8px 14px rgba(0,0,0,.5);
+  display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;
+  font-size:1.4rem;color:#100c06;font-weight:bold;text-shadow:0 1px 0 rgba(255,255,255,.35)}
+.unlock{margin-top:10px;background:#1d160f;border:1px solid var(--gold-dim);
+  border-radius:5px;padding:8px 10px;color:var(--gold);font-size:.8rem;line-height:1.4}
+.unlock::before{content:"⚔ GEAR CHANGE — ";font-weight:700;letter-spacing:.05em}
+.queststone{border-color:#7a5c1f}
+.queststone .skillname{color:#ffd76e}
+.btnrow{display:flex;gap:8px;margin-bottom:14px}
+button{font-family:inherit;cursor:pointer;border-radius:6px;border:2px solid var(--edge-d);
+  box-shadow:inset 0 0 0 2px var(--edge-l),0 2px 5px rgba(0,0,0,.4);padding:12px 10px;
+  font-size:.9rem;font-weight:700;letter-spacing:.04em}
+.btn-main{flex:2;background:linear-gradient(180deg,#4d6b2a,#33491b);color:#e9ffd0}
+.btn-main:active{transform:translateY(1px)}
+.btn-sec{flex:1;background:linear-gradient(180deg,#463b26,#332b1a);color:var(--text)}
+.btn-lamp{flex:1;background:linear-gradient(180deg,#6b5a1e,#4a3d12);color:#ffe9a8}
+.upcoming .row{display:flex;align-items:center;gap:10px;padding:8px 6px;border-bottom:1px solid #221c12;font-size:.85rem}
+.upcoming .row:last-child{border-bottom:none}
+.upcoming .n{color:var(--mut);font-size:.7rem;width:44px;flex:none}
+.dot{width:12px;height:12px;border-radius:50%;flex:none;border:1px solid #000}
+.upcoming .what{flex:1}
+.upcoming .qrow{color:#ffd76e}
+.tabs{position:fixed;bottom:0;left:0;right:0;display:flex;background:#201a10;
+  border-top:2px solid var(--edge-l);box-shadow:0 -3px 10px rgba(0,0,0,.6);padding-bottom:env(safe-area-inset-bottom)}
+.tabs button{flex:1;background:none;border:none;box-shadow:none;color:var(--mut);
+  padding:12px 4px 10px;font-size:.72rem;letter-spacing:.05em;border-radius:0}
+.tabs button.on{color:var(--gold);text-shadow:0 0 12px rgba(255,152,31,.4)}
+.tabs button .ico{display:block;font-size:1.15rem;margin-bottom:2px}
+.subtabs{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto}
+.subtabs button{flex:1;padding:9px 6px;font-size:.78rem;background:linear-gradient(180deg,#3a3122,#2a2314);color:var(--mut)}
+.subtabs button.on{color:var(--gold);border-color:var(--gold-dim)}
+.tl{list-style:none}
+.tl li{display:flex;gap:10px;padding:8px 2px;border-bottom:1px solid #221c12;font-size:.85rem;line-height:1.4}
+.tl li:last-child{border:none}
+.tl .lv{flex:none;width:56px;color:var(--gold);font-weight:700;font-size:.8rem}
+.bracket{margin-bottom:10px}
+.bracket h3{color:var(--parch);font-size:.82rem;letter-spacing:.06em;margin-bottom:4px;font-family:Georgia,serif}
+.bracket p{font-size:.83rem;line-height:1.5;color:var(--text)}
+.bracket .inv{color:var(--mut);font-size:.78rem;margin-top:3px;line-height:1.45}
+.bracket .inv::before{content:"🎒 ";opacity:.8}
+.qitem{display:flex;gap:10px;align-items:flex-start;padding:10px 4px;border-bottom:1px solid #221c12}
+.qitem:last-child{border:none}
+.qitem input{width:20px;height:20px;accent-color:var(--gold);flex:none;margin-top:2px}
+.qitem .qn{color:var(--parch);font-weight:700;font-size:.88rem}
+.qitem .qd{color:var(--mut);font-size:.78rem;line-height:1.45;margin-top:2px}
+.qitem .qx{color:var(--gold);font-size:.78rem;margin-top:2px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.gs{background:var(--stone2);border:2px solid var(--edge-d);border-radius:6px;
+  box-shadow:inset 0 0 0 1px var(--edge-l);padding:8px 6px;text-align:center}
+.gs .gn{font-size:.68rem;color:var(--mut);letter-spacing:.03em}
+.gs .gl{font-family:Georgia,serif;font-size:1.15rem;color:var(--parch);margin-top:2px}
+.gs .gl b{color:var(--gold)}
+.gs.done{border-color:#3f5a24}
+.gs.done .gl{color:var(--green)}
+.prog{height:14px;background:#14100a;border:2px solid var(--edge-d);border-radius:7px;
+  box-shadow:inset 0 0 0 1px var(--edge-l);overflow:hidden;margin:6px 0 2px}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,#7a5211,var(--gold));transition:width .4s}
+.small{font-size:.74rem;color:var(--mut);line-height:1.5}
+.hidden{display:none}
+dialog{background:var(--stone);color:var(--text);border:2px solid var(--edge-d);border-radius:8px;
+  box-shadow:inset 0 0 0 2px var(--edge-l),0 10px 30px rgba(0,0,0,.8);padding:16px;max-width:340px;width:90%}
+dialog::backdrop{background:rgba(0,0,0,.65)}
+dialog h3{color:var(--gold);font-family:Georgia,serif;margin-bottom:10px;font-size:1rem}
+dialog select,dialog input{width:100%;padding:10px;margin-bottom:10px;background:#1c160d;color:var(--text);
+  border:1px solid var(--edge-l);border-radius:5px;font-size:.9rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <h1>⛨ SKILLKEEP</h1>
+  <div class="sub">F2P · one level at a time · 14 roads to 99</div>
+</header>
+<main>
+  <section id="view-path"></section>
+  <section id="view-setups" class="hidden"></section>
+  <section id="view-quests" class="hidden"></section>
+  <section id="view-skills" class="hidden"></section>
+</main>
+<nav class="tabs">
+  <button data-v="path" class="on"><span class="ico">🗺️</span>Path</button>
+  <button data-v="setups"><span class="ico">⚔️</span>Setups</button>
+  <button data-v="quests"><span class="ico">📜</span>Quests</button>
+  <button data-v="skills"><span class="ico">💎</span>Skills</button>
+</nav>
+<dialog id="lampDlg">
+  <h3>🪔 Log a lamp / genie</h3>
+  <select id="lampSkill"></select>
+  <input id="lampXp" type="number" inputmode="numeric" placeholder="XP amount (genie = level × 10)">
+  <div class="btnrow" style="margin:0">
+    <button class="btn-main" onclick="applyLamp()">Apply</button>
+    <button class="btn-sec" onclick="lampDlg.close()">Cancel</button>
+  </div>
+</dialog>
+<script src="engine.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
