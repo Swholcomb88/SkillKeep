@@ -18,6 +18,7 @@ const SK = (() => {
 
   // F2P quests with XP rewards & recommended trigger (slot when trigger skill hits level via rotation)
   const QUESTS = [
+    {id:"runemysteries", name:"Rune Mysteries", xp:{}, trigger:{skill:"Attack",level:1}, note:"No XP reward, but REQUIRED before any lamp or genie XP can be applied to Runecraft — and required for Rune essence mine access. Do this literally first, before your first Attack level. ~10 min with no requirements."},
     {id:"cooks",   name:"Cook's Assistant",   xp:{Cooking:300},   trigger:{skill:"Cooking",level:2},  note:"Do immediately; free Cooking boost."},
     {id:"sheep",   name:"Sheep Shearer",      xp:{Crafting:150},  trigger:{skill:"Crafting",level:2}, note:"20 wool, 5 min."},
     {id:"goblin",  name:"Goblin Diplomacy",   xp:{Crafting:200},  trigger:{skill:"Crafting",level:3}, note:"Orange+blue dye, goblin mail."},

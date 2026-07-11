@@ -1,6 +1,3 @@
-# SkillKeep
-SkillKeep — F2P OSRS max guide with a one-level rotation cap. Interactive PWA: path, quests, gear timelines.
-
 # ⛨ SkillKeep
 
 A self-imposed challenge tracker for maxing a **Free-to-Play OSRS** account under one rule:
