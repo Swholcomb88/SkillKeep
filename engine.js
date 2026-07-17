@@ -30,7 +30,7 @@ const SK = (() => {
     {id:"vampyre", name:"Vampyre Slayer",     xp:{Attack:4825},   trigger:{skill:"Attack",level:5},   note:"Bring food + stake; Attack → ~20."},
     {id:"knight",  name:"The Knight's Sword", xp:{Smithing:12725},trigger:{skill:"Smithing",level:2}, note:"Needs Mining 10 (Doric's covers it). Smithing 1 → 29 in one turn-free jump."},
     {id:"dragon",  name:"Dragon Slayer I",    xp:{Strength:18650,Defence:18650}, trigger:{skill:"Defence",level:32}, note:"32 Quest Points required. Str & Def +~10 levels each, unlocks rune platebody + green d'hide body."},
-    {id:"xmarks",  name:"X Marks the Spot",   xp:{},              trigger:{skill:"Attack",level:2},   lamp:{xp:300,rec:"Runecraft"}, note:"Antique lamp: 300 XP any skill → put it in Runecraft (slowest F2P XP)."}
+    {id:"xmarks",  name:"X Marks the Spot",   xp:{},              trigger:{skill:"Attack",level:2},   lamp:{xp:300,rec:"Runecraft"}, note:"Antique lamp: 300 XP any skill. Goes to Runecraft IF Rune Mysteries is done — otherwise the game won't let you pick RC, so it goes to Prayer instead."}
   ];
 
   // Gear/spell/style unlock timeline. key: skill, level, optional quest gate.
@@ -100,8 +100,11 @@ const SK = (() => {
       else gains.push(`${sk} +${xp}xp (banked)`);
     }
     let lampTxt="";
-    if(q.lamp){ lampTxt=` Lamp → ${q.lamp.rec} (+${q.lamp.xp}xp).`;
-      const sk=q.lamp.rec, cur=state.levels[sk], after=levelForXp(XP[cur]+q.lamp.xp);
+    if(q.lamp){
+      let target=q.lamp.rec;
+      if(target==="Runecraft" && !state.quests["runemysteries"]) target="Prayer";
+      lampTxt=` Lamp → ${target} (+${q.lamp.xp}xp).`;
+      const sk=target, cur=state.levels[sk], after=levelForXp(XP[cur]+q.lamp.xp);
       if(after>cur) state.levels[sk]=after;
     }
     steps.push({type:"quest", quest:q.name, id:q.id, detail:(gains.join(", ")||"No direct XP")+"."+lampTxt+" "+q.note});

@@ -128,15 +128,19 @@ function completeLevel(){
 function completeQuestStep(id){
   history.push(JSON.stringify(state));
   const q=SK.QUESTS.find(x=>x.id===id); if(!q)return;
-  const steps=[]; // reuse engine apply
   const st=state; st.quests=st.quests||{};
-  // mimic engine.applyQuest on live state:
   st.quests[id]=true;
   for(const [sk,xp] of Object.entries(q.xp)){
     const cur=st.levels[sk], after=SK.levelForXp(SK.XP[cur]+xp);
     if(after>cur) st.levels[sk]=after;
   }
-  if(q.lamp){const sk=q.lamp.rec,cur=st.levels[sk],after=SK.levelForXp(SK.XP[cur]+q.lamp.xp);if(after>cur)st.levels[sk]=after;}
+  if(q.lamp){
+    let sk=q.lamp.rec;
+    if(sk==="Runecraft" && !st.quests["runemysteries"]) sk="Prayer"; // matches real in-game restriction
+    const cur=st.levels[sk],after=SK.levelForXp(SK.XP[cur]+q.lamp.xp);
+    if(after>cur)st.levels[sk]=after;
+    st.lampLog=st.lampLog||{}; st.lampLog[id]=sk;
+  }
   st.last=null; save(); renderPath(); if(curView==="quests")renderQuests();
 }
 function undo(){if(!history.length)return; state=JSON.parse(history.pop()); save(); views[curView]();}
@@ -178,17 +182,36 @@ function renderQuests(){
   const el=document.getElementById("view-quests");
   state.quests=state.quests||{};
   const rmDone=!!state.quests["runemysteries"];
+  const needsFix = state.quests["xmarks"] && !rmDone && !(state.lampLog&&state.lampLog["xmarks"]) && !state.fixedXmarksLamp;
   const rows=SK.QUESTS.map(q=>{
-    const xp=Object.entries(q.xp).map(([k,v])=>`${k} +${v.toLocaleString()}`).join(", ")||(q.lamp?`Antique lamp ${q.lamp.xp} xp → ${q.lamp.rec}`:"No XP");
+    let xp;
+    if(q.lamp){
+      const actual=(state.lampLog&&state.lampLog[q.id])||q.lamp.rec;
+      xp=`Antique lamp ${q.lamp.xp} xp → ${actual}`;
+    } else {
+      xp=Object.entries(q.xp).map(([k,v])=>`${k} +${v.toLocaleString()}`).join(", ")||"No XP";
+    }
     return `<div class="qitem"><input type="checkbox" ${state.quests[q.id]?"checked":""} onchange="toggleQuest('${q.id}',this.checked)">
     <div><div class="qn">${q.name}</div><div class="qx">${xp}</div><div class="qd">${q.note}</div></div></div>`;
   }).join("");
   const lampAdvice = rmDone
     ? `Every free-choice lamp goes to <b style="color:var(--gold)">Runecraft first, Prayer second</b> — the two slowest/most expensive roads in F2P.`
     : `<b style="color:#ff8a6a)">Rune Mysteries isn't done yet</b> — lamps can't touch Runecraft until it is. Route lamps to <b style="color:var(--gold)">Prayer</b> instead until that quest is complete, exactly like you just did.`;
-  el.innerHTML=`<div class="card"><h2>F2P quest XP — free levels that never spend a turn</h2>${rows}</div>
+  el.innerHTML=(needsFix?`<div class="card" style="border-color:#8a3a2a"><h2 style="color:#ff8a6a">⚠ Data mismatch detected</h2>
+  <p class="small">X Marks the Spot's lamp was recorded as Runecraft +300xp, but Rune Mysteries isn't done — meaning in-game you'd have (and did) put it in Prayer instead. Tap below to move that XP from Runecraft to Prayer, matching your real account.</p>
+  <div class="btnrow" style="margin-top:8px"><button class="btn-main" onclick="fixXmarksLamp()">Fix: move 300xp Runecraft → Prayer</button></div></div>`:"")
+  +`<div class="card"><h2>F2P quest XP — free levels that never spend a turn</h2>${rows}</div>
   <div class="card"><h2>Lamp doctrine</h2><p class="small">${lampAdvice} A genie lamp gives current level × 10 XP, so the later you rub it the more it pays… but Runecraft XP is misery at any level. Log lamps with the 🪔 button on the Path tab.</p>
   <p class="small" style="margin-top:8px">Quests with no XP reward (Corsair Curse, Prince Ali, Demon Slayer, Ernest, Pirate's Treasure, Romeo & Juliet, Shield of Arrav, Below Ice Mountain) still matter: Dragon Slayer needs 32 Quest Points. Do them during skilling downtime.</p></div>`;
+}
+function fixXmarksLamp(){
+  history.push(JSON.stringify(state));
+  state.levels.Runecraft = 1; // the only xp RC had was the mis-applied lamp
+  const cur=state.levels.Prayer, after=SK.levelForXp(SK.XP[cur]+300);
+  if(after>cur) state.levels.Prayer=after;
+  state.lampLog=state.lampLog||{}; state.lampLog["xmarks"]="Prayer";
+  state.fixedXmarksLamp=true;
+  save(); renderQuests(); if(curView==="path")renderPath(); if(curView==="skills")renderSkills();
 }
 function toggleQuest(id,on){
   if(on){completeQuestStep(id);}
