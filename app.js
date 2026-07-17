@@ -222,12 +222,21 @@ function renderSkills(){
   const el=document.getElementById("view-skills");
   const cells=SK.SKILLS.map(s=>{
     const l=state.levels[s];
-    return `<div class="gs ${l>=99?'done':''}" style="border-left:4px solid ${COLORS[s]}">
+    return `<div class="gs ${l>=99?'done':''}" style="border-left:4px solid ${COLORS[s]}" onclick="editSkill('${s}')">
     <div class="gn">${s}</div><div class="gl"><b>${l}</b>/99</div></div>`;
   }).join("");
   el.innerHTML=`<div class="card"><h2>Skill ledger</h2><div class="grid">${cells}
   <div class="gs"><div class="gn">Hitpoints</div><div class="gl" style="color:var(--mut)">passive</div></div></div>
-  <p class="small" style="margin-top:10px">Tap a step done on the Path tab to advance. Total: 1,280 rotation levels + quest jumps. Prayer and Runecraft are the long roads — every gp decision in the other 12 skills exists to feed them.</p></div>`;
+  <p class="small" style="margin-top:10px">Tap any skill above to manually correct its level — handy if the app's tracked number ever drifts from your real account. Total: 1,280 rotation levels + quest jumps. Prayer and Runecraft are the long roads — every gp decision in the other 12 skills exists to feed them.</p></div>`;
+}
+function editSkill(sk){
+  const cur=state.levels[sk];
+  const v=prompt(`Set ${sk} to your real in-game level (1-99):`,cur);
+  if(v===null)return;
+  const n=parseInt(v,10);
+  if(!Number.isFinite(n)||n<1||n>99){alert("Enter a number between 1 and 99.");return;}
+  history.push(JSON.stringify(state));
+  state.levels[sk]=n; save(); renderSkills();
 }
 
 /* boot */
